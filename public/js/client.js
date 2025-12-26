@@ -1,23 +1,43 @@
 /* global TrelloPowerUp */
 
+// Feedback Link Replacer Power-Up
+// Automatically converts feedback:NNNN patterns to GitHub repository links
+
 var Promise = TrelloPowerUp.Promise;
 
-var BLACK_ROCKET_ICON = 'https://cdn.glitch.com/1b42d7fe-bda8-4af8-a6c8-eff0cea9e08a%2Frocket-ship.png?1494946700421';
+// Power-Up Configuration
+var POWER_UP_CONFIG = {
+  name: 'Feedback Link Replacer',
+  version: '1.0.0',
+  capabilities: [
+    'card-detail-badges',
+    'show-settings'
+  ]
+};
 
+// Initialize the Power-Up with minimal capabilities
 TrelloPowerUp.initialize({
-    'card-buttons': function (t, options) {
-        return t.set("member", "shared", "hello", "world")
-            .then(function () {
-                return [{
-                    icon: BLACK_ROCKET_ICON,
-                    text: 'Estimate Size',
-                    callback: function (t) {
-                        return t.popup({
-                            title: "Estimation",
-                            url: 'estimate.html',
-                        });
-                    }
-                }];
-            })
-    },
+  // Show a badge on cards to indicate the Power-Up is active
+  'card-detail-badges': function(t, options) {
+    return Promise.resolve([{
+      title: 'Feedback Link Replacer',
+      text: 'Active',
+      color: 'green'
+    }]);
+  },
+  
+  // Show settings option
+  'show-settings': function(t, options) {
+    return t.popup({
+      title: 'Feedback Link Replacer Settings',
+      url: './settings.html'
+    });
+  }
 });
+
+// Export configuration for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    POWER_UP_CONFIG: POWER_UP_CONFIG
+  };
+}
