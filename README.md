@@ -40,7 +40,7 @@ Add these **3 secrets** to your GitHub repository (Settings → Secrets and vari
 ### Step 3: Push to Main Branch
 
 GitHub Actions will automatically:
-1. Deploy CloudFormation stack (creates Amplify app, IAM roles, etc.)
+1. Deploy CloudFormation stack (creates Amplify app and branch configuration)
 2. Trigger Amplify build and deployment
 3. Your Power-Up will be live at the Amplify URL
 
@@ -119,7 +119,6 @@ aws cloudformation deploy \
     GitHubToken=your_token \
     BranchName=main \
     AppName=trello-powerup-hello-world \
-  --capabilities CAPABILITY_IAM \
   --region us-east-2
 ```
 
