@@ -9,6 +9,9 @@ build/
 amplify/
 .amplify/
 
+# CloudFormation
+cloudformation/parameters.json
+
 # Environment variables
 .env
 .env.local
