@@ -25,6 +25,7 @@ Resources:
   AmplifyServiceRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: !Sub '${AppName}-amplify-role'
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -34,10 +35,10 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess-Amplify
-      Path: /service-role/
 
   AmplifyApp:
     Type: AWS::Amplify::App
+    DependsOn: AmplifyServiceRole
     Properties:
       Name: !Ref AppName
       Repository: !Ref RepositoryUrl
