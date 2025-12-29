@@ -22,12 +22,34 @@ Parameters:
     Description: Name of the Amplify application
 
 Resources:
+  AmplifyServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - !Sub 'amplify.${AWS::Region}.amazonaws.com'
+                - amplify.amazonaws.com
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+              ArnLike:
+                aws:SourceArn: !Sub 'arn:aws:amplify:${AWS::Region}:${AWS::AccountId}:apps/*'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess-Amplify
+      Path: /service-role/
+
   AmplifyApp:
     Type: AWS::Amplify::App
     Properties:
       Name: !Ref AppName
       Repository: !Ref RepositoryUrl
       AccessToken: !Ref GitHubToken
+      IAMServiceRole: !GetAtt AmplifyServiceRole.Arn
       BuildSpec: |
         version: 1
         frontend:
