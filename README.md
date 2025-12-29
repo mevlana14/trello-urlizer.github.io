@@ -19,90 +19,46 @@ A simple Trello Power-Up that logs "Hello World" to the console, deployed to AWS
 - GitHub repository (this repo)
 - GitHub Personal Access Token (for Amplify to access your repo)
 
-## Deployment Options
+## Deployment
 
-You can deploy this Power-Up in two ways:
-
-### Option 1: CloudFormation Deployment (Recommended)
-
-CloudFormation automates the entire AWS Amplify infrastructure setup.
-
-#### Step 1: Create GitHub Personal Access Token
+### Step 1: Create GitHub Personal Access Token
 
 1. Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
 2. Generate a new token with `repo` scope
 3. Save this token securely
 
-#### Step 2: Configure CloudFormation Parameters
+### Step 2: Configure GitHub Secrets
 
-```bash
-# Copy the example parameters file
-cp cloudformation/parameters.example.json cloudformation/parameters.json
+Add these secrets to your GitHub repository (Settings → Secrets and variables → Actions):
 
-# Edit parameters.json with your values
-```
-
-Update the following values in `cloudformation/parameters.json`:
-- `RepositoryUrl`: Your GitHub repository URL (e.g., https://github.com/username/repo)
-- `GitHubToken`: Your GitHub personal access token
-- `BranchName`: Branch to deploy (default: main)
-- `AppName`: Name for your Amplify app
-
-#### Step 3: Deploy with CloudFormation
-
-```bash
-# Set your AWS region
-export AWS_REGION=us-east-1
-
-# Deploy using the script
-./cloudformation/deploy.sh
-```
-
-Or manually:
-
-```bash
-aws cloudformation deploy \
-  --template-file cloudformation/amplify.yaml \
-  --stack-name trello-powerup-amplify \
-  --parameter-overrides file://cloudformation/parameters.json \
-  --capabilities CAPABILITY_IAM \
-  --region us-east-1
-```
-
-#### Step 4: Get Your Amplify URL
-
-```bash
-aws cloudformation describe-stacks \
-  --stack-name trello-powerup-amplify \
-  --query 'Stacks[0].Outputs' \
-  --output table
-```
-
-#### Step 5: Configure GitHub Actions (Optional)
-
-To enable automatic deployments via GitHub Actions when pushing to main:
-
-Add these secrets to your GitHub repository:
 - `AWS_ACCESS_KEY_ID` - Your AWS access key
 - `AWS_SECRET_ACCESS_KEY` - Your AWS secret key
 - `AWS_REGION` - Your AWS region (e.g., us-east-1)
 - `USE_CLOUDFORMATION` - Set to `true` to use CloudFormation deployment
-- `GITHUB_REPO_URL` - Your GitHub repository URL
+- `GITHUB_REPO_URL` - Your GitHub repository URL (e.g., https://github.com/username/repo)
 - `GITHUB_TOKEN_AMPLIFY` - Your GitHub personal access token
 
-### Option 2: Manual AWS Amplify Setup
+### Step 3: Push to Main Branch
 
-1. Log in to [AWS Amplify Console](https://console.aws.amazon.com/amplify/)
-2. Click "New app" → "Host web app"
-3. Connect your GitHub repository
-4. Configure build settings (or use the default settings)
-5. Deploy
+GitHub Actions will automatically:
+1. Deploy CloudFormation stack (creates Amplify app, IAM roles, etc.)
+2. Trigger Amplify build and deployment
+3. Your Power-Up will be live at the Amplify URL
 
-Add these secrets to your GitHub repository:
-- `AWS_ACCESS_KEY_ID` - Your AWS access key
-- `AWS_SECRET_ACCESS_KEY` - Your AWS secret key
-- `AWS_REGION` - Your AWS region (e.g., us-east-1)
-- `AMPLIFY_APP_ID` - Your Amplify app ID (from the console)
+```bash
+git push origin main
+```
+
+### Step 4: Get Your Amplify URL
+
+Check the AWS Amplify Console or run:
+
+```bash
+aws cloudformation describe-stacks \
+  --stack-name trello-powerup-amplify \
+  --query 'Stacks[0].Outputs[?OutputKey==`AmplifyAppUrl`].OutputValue' \
+  --output text
+```
 
 ### Trello Power-Up Setup
 
@@ -123,9 +79,7 @@ Add these secrets to your GitHub repository:
 ├── amplify.yml             # Amplify build configuration
 ├── cloudformation/
 │   ├── amplify.yaml        # CloudFormation template
-│   ├── parameters.example.json  # Example parameters
-│   ├── deploy.sh           # Deployment script
-│   └── delete.sh           # Stack deletion script
+│   └── parameters.example.json  # Example parameters
 └── .github/
     └── workflows/
         └── deploy.yml      # GitHub Actions workflow
@@ -152,23 +106,26 @@ git push origin main
 
 ## CloudFormation Management
 
-### Update Stack
+### Update Infrastructure
 
-To update your Amplify infrastructure:
+GitHub Actions automatically updates the CloudFormation stack when you push to main. To manually update:
 
 ```bash
-./cloudformation/deploy.sh
+aws cloudformation deploy \
+  --template-file cloudformation/amplify.yaml \
+  --stack-name trello-powerup-amplify \
+  --parameter-overrides \
+    RepositoryUrl=https://github.com/username/repo \
+    GitHubToken=your_token \
+    BranchName=main \
+    AppName=trello-powerup-hello-world \
+  --capabilities CAPABILITY_IAM \
+  --region us-east-1
 ```
 
 ### Delete Stack
 
 To completely remove all AWS resources:
-
-```bash
-./cloudformation/delete.sh
-```
-
-Or manually:
 
 ```bash
 aws cloudformation delete-stack \
