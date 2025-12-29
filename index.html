@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trello Power-Up - Hello World</title>
+</head>
+<body>
+    <script src="https://p.trellocdn.com/power-up.min.js"></script>
+    <script>
+        // Log hello world to console
+        console.log('Hello World');
+
+        // Initialize the Trello Power-Up
+        window.TrelloPowerUp.initialize({
+            'card-badges': function(t, options) {
+                console.log('Hello World from card-badges');
+                return [];
+            },
+            'card-buttons': function(t, options) {
+                console.log('Hello World from card-buttons');
+                return [];
+            },
+            'board-buttons': function(t, options) {
+                console.log('Hello World from board-buttons');
+                return [{
+                    text: 'Hello World',
+                    callback: function(t) {
+                        console.log('Hello World button clicked!');
+                        return t.popup({
+                            title: 'Hello World',
+                            url: './popup.html',
+                            height: 200
+                        });
+                    }
+                }];
+            }
+        }, {
+            appKey: 'your-app-key-here',
+            appName: 'Hello World Power-Up'
+        });
+
+        console.log('Trello Power-Up initialized - Hello World');
+    </script>
+</body>
+</html>

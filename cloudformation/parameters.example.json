@@ -1,0 +1,18 @@
+[
+  {
+    "ParameterKey": "RepositoryUrl",
+    "ParameterValue": "https://github.com/your-username/trello-urlizer.github.io"
+  },
+  {
+    "ParameterKey": "GitHubToken",
+    "ParameterValue": "ghp_your_github_personal_access_token_here"
+  },
+  {
+    "ParameterKey": "BranchName",
+    "ParameterValue": "main"
+  },
+  {
+    "ParameterKey": "AppName",
+    "ParameterValue": "trello-powerup-hello-world"
+  }
+]
