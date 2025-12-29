@@ -32,7 +32,7 @@ jobs:
               GitHubToken=${{ secrets.AMPLIFY_GITHUB_TOKEN }} \
               BranchName=main \
               AppName=trello-powerup-hello-world \
-            --capabilities CAPABILITY_IAM \
+            --capabilities CAPABILITY_NAMED_IAM \
             --region us-east-2
 
           # Get the App ID from CloudFormation outputs
