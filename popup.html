@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello World Popup</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Helvetica Neue', Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #0079bf;
+            font-size: 24px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hello World!</h1>
+    <script src="https://p.trellocdn.com/power-up.min.js"></script>
+    <script>
+        console.log('Hello World from popup!');
+        window.TrelloPowerUp.initialize({});
+    </script>
+</body>
+</html>

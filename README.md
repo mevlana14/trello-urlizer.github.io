@@ -1,31 +1,76 @@
-**Important**: Please read the root level [README](https://bitbucket.org/atlassianlabs/trello-glitch-example-projects/src/main/README.md) of this repository before proceeding.
+# Trello Power-Up - Hello World
 
-Below is the original README for this Glitch example project.
+A simple Trello Power-Up that logs "Hello World" to the console, deployed to AWS Amplify via GitHub Actions.
 
----
+## Features
 
-# Glitch Hosted Sample Trello Power-Up 🚀
+- Logs "Hello World" to the browser console when the Power-Up loads
+- Adds a "Hello World" button to Trello boards
+- Opens a popup when the button is clicked
+- Automatically deploys to AWS Amplify when you push to the main branch
 
-Hey there 👋
+## Setup
 
-This is a bare-bones template for building a new Trello Power-Up. What does that mean for you? We hope it's a great starting point for you to remix, and make your own great Power-Up that makes Trello work even better for you.
+### Prerequisites
 
-Once you remix this, you'll want to take a look at what the new name is. Click the `Show Live` button up in the top bar and grab that url and then head here:
+- A Trello account
+- An AWS account
+- GitHub repository (this repo)
 
-👉 [https://trello.com/power-ups/admin](https://trello.com/power-ups/admin)
+### AWS Amplify Setup
 
----
+1. Log in to [AWS Amplify Console](https://console.aws.amazon.com/amplify/)
+2. Click "New app" → "Host web app"
+3. Connect your GitHub repository
+4. Configure build settings (or use the default settings)
+5. Deploy
 
-Want more information about Power-Ups? 🤔
+### GitHub Actions Setup
 
-👉 [https://developer.atlassian.com/cloud/trello/guides/power-ups/your-first-power-up/](https://developer.atlassian.com/cloud/trello/guides/power-ups/your-first-power-up/)
+The repository includes a GitHub Actions workflow that automatically deploys to AWS Amplify when you push to the main branch.
 
----
+You'll need to add these secrets to your GitHub repository:
+- `AWS_ACCESS_KEY_ID` - Your AWS access key
+- `AWS_SECRET_ACCESS_KEY` - Your AWS secret key
+- `AWS_REGION` - Your AWS region (e.g., us-east-1)
+- `AMPLIFY_APP_ID` - Your Amplify app ID
 
-Looking for a more _realistic_ example Power-Up? You may find the Trello Card Snooze Power-Up useful. 😴
+### Trello Power-Up Setup
 
-👉 [Trello Card Snooze Glitch Project](https://glitch.com/edit/#!/trellocardsnooze)
+1. Go to [Trello Power-Ups Admin](https://trello.com/power-ups/admin)
+2. Click "Create New Power-Up"
+3. Fill in the details:
+   - **Name**: Hello World Power-Up
+   - **Iframe Connector URL**: Your AWS Amplify URL + `/index.html`
+4. Save and enable the Power-Up on your Trello board
 
----
+## Development
 
-Icons made by [Freepik](http://www.freepik.com) and [Vectors Market](http://www.flaticon.com/authors/vectors-market) from [www.flaticon.com](http://www.flaticon.com) is licensed by [CC 3.0 BY](http://creativecommons.org/licenses/by/3.0/)
+The Power-Up consists of:
+- `index.html` - Main connector file that initializes the Power-Up
+- `popup.html` - Popup displayed when the "Hello World" button is clicked
+- `manifest.json` - Power-Up configuration
+
+## Deployment
+
+Simply push to the main branch and GitHub Actions will automatically deploy to AWS Amplify:
+
+```bash
+git add .
+git commit -m "Update Power-Up"
+git push origin main
+```
+
+## Console Logs
+
+When the Power-Up is loaded, you'll see these console logs:
+- "Hello World" - When index.html loads
+- "Hello World from card-badges" - When viewing cards
+- "Hello World from card-buttons" - When viewing cards
+- "Hello World from board-buttons" - When viewing boards
+- "Trello Power-Up initialized - Hello World" - After initialization
+- "Hello World from popup!" - When opening the popup
+
+## License
+
+MIT
