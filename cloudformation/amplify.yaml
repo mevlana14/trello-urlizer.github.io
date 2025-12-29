@@ -32,7 +32,9 @@ Resources:
           - Effect: Allow
             Principal:
               Service: amplify.amazonaws.com
-            Action: sts:AssumeRole
+            Action:
+              - sts:AssumeRole
+              - sts:TagSession
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess-Amplify
 
