@@ -28,7 +28,7 @@ jobs:
             --stack-name trello-powerup-amplify \
             --parameter-overrides \
               RepositoryUrl=https://github.com/mevlana14/trello-urlizer.github.io \
-              GitHubToken=${{ secrets.GITHUB_TOKEN_AMPLIFY }} \
+              GitHubToken=${{ secrets.AMPLIFY_GITHUB_TOKEN }} \
               BranchName=main \
               AppName=trello-powerup-hello-world \
             --capabilities CAPABILITY_IAM \

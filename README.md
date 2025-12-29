@@ -33,7 +33,7 @@ Add these **3 secrets** to your GitHub repository (Settings → Secrets and vari
 
 - `AWS_ACCESS_KEY_ID` - Your AWS access key
 - `AWS_SECRET_ACCESS_KEY` - Your AWS secret key
-- `GITHUB_TOKEN_AMPLIFY` - Your GitHub personal access token (Amplify needs this to clone your repo and deploy it)
+- `AMPLIFY_GITHUB_TOKEN` - Your GitHub personal access token (Amplify needs this to clone your repo and deploy it)
 
 **Note**: AWS region (us-east-2) and GitHub repo URL are hardcoded in the workflow.
 
