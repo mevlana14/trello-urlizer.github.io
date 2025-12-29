@@ -48,7 +48,6 @@ Resources:
       EnvironmentVariables:
         - Name: _LIVE_UPDATES
           Value: '[{"name":"Amplify CLI","pkg":"@aws-amplify/cli","type":"npm","version":"latest"}]'
-      IAMServiceRole: !GetAtt AmplifyRole.Arn
 
   AmplifyBranch:
     Type: AWS::Amplify::Branch
@@ -58,19 +57,6 @@ Resources:
       EnableAutoBuild: true
       EnablePullRequestPreview: false
       Framework: Web
-
-  AmplifyRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: amplify.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AdministratorAccess-Amplify
 
 Outputs:
   AmplifyAppId:
