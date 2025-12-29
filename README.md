@@ -31,12 +31,14 @@ A simple Trello Power-Up that logs "Hello World" to the console, deployed to AWS
 
 Add these secrets to your GitHub repository (Settings → Secrets and variables → Actions):
 
+**AWS Credentials:**
 - `AWS_ACCESS_KEY_ID` - Your AWS access key
 - `AWS_SECRET_ACCESS_KEY` - Your AWS secret key
 - `AWS_REGION` - Your AWS region (e.g., us-east-1)
-- `USE_CLOUDFORMATION` - Set to `true` to use CloudFormation deployment
+
+**GitHub Integration (for Amplify to pull your code):**
 - `GITHUB_REPO_URL` - Your GitHub repository URL (e.g., https://github.com/username/repo)
-- `GITHUB_TOKEN_AMPLIFY` - Your GitHub personal access token
+- `GITHUB_TOKEN_AMPLIFY` - Your GitHub personal access token (Amplify needs this to clone your repo and deploy it)
 
 ### Step 3: Push to Main Branch
 

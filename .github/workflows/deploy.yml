@@ -20,10 +20,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Deploy to Amplify via CloudFormation
-        if: ${{ secrets.USE_CLOUDFORMATION == 'true' }}
+      - name: Deploy CloudFormation Stack
         run: |
-          # Deploy CloudFormation stack
+          # Deploy CloudFormation stack (creates/updates Amplify app)
           aws cloudformation deploy \
             --template-file cloudformation/amplify.yaml \
             --stack-name trello-powerup-amplify \
@@ -42,24 +41,10 @@ jobs:
             --output text \
             --region ${{ secrets.AWS_REGION }})
 
-          # Trigger deployment
+          # Trigger Amplify build and deployment
           COMMIT_ID=$(git rev-parse HEAD)
           aws amplify start-job \
             --app-id $AMPLIFY_APP_ID \
-            --branch-name main \
-            --job-type RELEASE \
-            --commit-id $COMMIT_ID \
-            --region ${{ secrets.AWS_REGION }}
-
-      - name: Deploy to Amplify (Direct)
-        if: ${{ secrets.USE_CLOUDFORMATION != 'true' }}
-        run: |
-          # Get the latest commit hash
-          COMMIT_ID=$(git rev-parse HEAD)
-
-          # Trigger Amplify deployment
-          aws amplify start-job \
-            --app-id ${{ secrets.AMPLIFY_APP_ID }} \
             --branch-name main \
             --job-type RELEASE \
             --commit-id $COMMIT_ID \
