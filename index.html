@@ -11,76 +11,36 @@
     <script>
         console.log('Feedback Replacer Power-Up loading...');
 
-        // Initialize the Trello Power-Up
+        // Initialize the Trello Power-Up - read-only, no API key needed
         window.TrelloPowerUp.initialize({
-            'card-badges': function(t, options) {
-                // Show badge if card has replaceable feedback patterns
+            'card-back-section': function(t, options) {
                 return t.card('name', 'desc')
                     .then(function(card) {
+                        // Check if there are any patterns to show
                         var hasPatterns = false;
-
-                        // Check card name
                         if (card.name && FeedbackReplacer.hasReplaceablePatterns(card.name)) {
                             hasPatterns = true;
                         }
-
-                        // Check card description
                         if (card.desc && FeedbackReplacer.hasReplaceablePatterns(card.desc)) {
                             hasPatterns = true;
                         }
 
+                        // Only show section if there are patterns
                         if (hasPatterns) {
-                            return [{
-                                text: 'Feedback',
-                                color: 'orange',
-                                icon: 'https://cdn-icons-png.flaticon.com/512/1827/1827933.png'
-                            }];
+                            return {
+                                title: 'Feedback References',
+                                icon: 'https://cdn-icons-png.flaticon.com/512/1827/1827933.png',
+                                content: {
+                                    type: 'iframe',
+                                    url: t.signUrl('./card-back.html'),
+                                    height: 120
+                                }
+                            };
                         }
-                        return [];
+                        return null;
                     });
-            },
-
-            'card-buttons': function(t, options) {
-                return [{
-                    icon: 'https://cdn-icons-png.flaticon.com/512/1827/1827933.png',
-                    text: 'Replace Feedback',
-                    callback: function(t) {
-                        return t.popup({
-                            title: 'Feedback Replacer',
-                            url: './popup.html',
-                            height: 300
-                        });
-                    }
-                }];
-            },
-
-            'card-back-section': function(t, options) {
-                return {
-                    title: 'Feedback Replacer',
-                    icon: 'https://cdn-icons-png.flaticon.com/512/1827/1827933.png',
-                    content: {
-                        type: 'iframe',
-                        url: t.signUrl('./card-back.html'),
-                        height: 150
-                    }
-                };
-            },
-
-            'board-buttons': function(t, options) {
-                return [{
-                    text: 'Feedback Replacer',
-                    icon: 'https://cdn-icons-png.flaticon.com/512/1827/1827933.png',
-                    callback: function(t) {
-                        return t.popup({
-                            title: 'Feedback Replacer Settings',
-                            url: './popup.html',
-                            height: 200
-                        });
-                    }
-                }];
             }
         }, {
-            appKey: 'your-app-key-here',
             appName: 'Feedback Replacer Power-Up'
         });
 
