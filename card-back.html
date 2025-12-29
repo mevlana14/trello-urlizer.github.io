@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Status</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Helvetica Neue', Arial, sans-serif;
+            padding: 12px;
+            margin: 0;
+            background: #fff;
+            font-size: 13px;
+        }
+        .status-box {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 3px;
+            margin-bottom: 8px;
+        }
+        .status-box.found {
+            background: #fff8e6;
+            border: 1px solid #ffab00;
+        }
+        .status-box.clean {
+            background: #e3fcef;
+            border: 1px solid #36b37e;
+        }
+        .icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+        .pattern-list {
+            margin: 8px 0;
+            padding: 0;
+            list-style: none;
+        }
+        .pattern-list li {
+            background: #f4f5f7;
+            padding: 6px 10px;
+            border-radius: 3px;
+            margin-bottom: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .btn-replace {
+            display: inline-block;
+            background: #0079bf;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 3px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn-replace:hover {
+            background: #026aa7;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div class="status-box" id="statusBox">
+            <span id="statusText">Checking for feedback patterns...</span>
+        </div>
+        <ul class="pattern-list" id="patternList" style="display: none;"></ul>
+        <button class="btn-replace" id="replaceBtn" style="display: none;">Replace All</button>
+    </div>
+
+    <script src="https://p.trellocdn.com/power-up.min.js"></script>
+    <script src="./js/feedback-replacer.js"></script>
+    <script>
+        var t = window.TrelloPowerUp.iframe();
+        var statusBox = document.getElementById('statusBox');
+        var statusText = document.getElementById('statusText');
+        var patternList = document.getElementById('patternList');
+        var replaceBtn = document.getElementById('replaceBtn');
+
+        function checkCard() {
+            t.card('name', 'desc')
+                .then(function(card) {
+                    var allPatterns = [];
+
+                    // Check card name
+                    if (card.name) {
+                        var namePatterns = FeedbackReplacer.detectPatterns(card.name);
+                        namePatterns.forEach(function(p) {
+                            p.location = 'name';
+                            allPatterns.push(p);
+                        });
+                    }
+
+                    // Check card description
+                    if (card.desc) {
+                        var descPatterns = FeedbackReplacer.detectPatterns(card.desc);
+                        descPatterns.forEach(function(p) {
+                            p.location = 'description';
+                            allPatterns.push(p);
+                        });
+                    }
+
+                    // Filter out already-replaced patterns
+                    var replaceablePatterns = allPatterns.filter(function(p) {
+                        return !p.originalText.includes('mevlana');
+                    });
+
+                    if (replaceablePatterns.length > 0) {
+                        statusBox.className = 'status-box found';
+                        statusText.textContent = replaceablePatterns.length + ' feedback pattern(s) found';
+
+                        // Show pattern list
+                        patternList.innerHTML = '';
+                        replaceablePatterns.forEach(function(p) {
+                            var li = document.createElement('li');
+                            li.textContent = p.originalText + ' (in ' + p.location + ')';
+                            patternList.appendChild(li);
+                        });
+                        patternList.style.display = 'block';
+                        replaceBtn.style.display = 'inline-block';
+                    } else {
+                        statusBox.className = 'status-box clean';
+                        statusText.textContent = 'No feedback patterns to replace';
+                        patternList.style.display = 'none';
+                        replaceBtn.style.display = 'none';
+                    }
+                })
+                .catch(function(err) {
+                    console.error('Error checking card:', err);
+                    statusText.textContent = 'Error checking card';
+                });
+        }
+
+        replaceBtn.addEventListener('click', function() {
+            t.popup({
+                title: 'Feedback Replacer',
+                url: './popup.html',
+                height: 300
+            });
+        });
+
+        // Initial check
+        checkCard();
+    </script>
+</body>
+</html>
