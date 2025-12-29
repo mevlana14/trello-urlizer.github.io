@@ -15,7 +15,7 @@ A simple Trello Power-Up that logs "Hello World" to the console, deployed to AWS
 ### Prerequisites
 
 - A Trello account
-- An AWS account with AWS CLI configured
+- An AWS account
 - GitHub repository (this repo)
 - GitHub Personal Access Token (for Amplify to access your repo)
 
@@ -29,16 +29,13 @@ A simple Trello Power-Up that logs "Hello World" to the console, deployed to AWS
 
 ### Step 2: Configure GitHub Secrets
 
-Add these secrets to your GitHub repository (Settings → Secrets and variables → Actions):
+Add these **3 secrets** to your GitHub repository (Settings → Secrets and variables → Actions):
 
-**AWS Credentials:**
 - `AWS_ACCESS_KEY_ID` - Your AWS access key
 - `AWS_SECRET_ACCESS_KEY` - Your AWS secret key
-- `AWS_REGION` - Your AWS region (e.g., us-east-1)
-
-**GitHub Integration (for Amplify to pull your code):**
-- `GITHUB_REPO_URL` - Your GitHub repository URL (e.g., https://github.com/username/repo)
 - `GITHUB_TOKEN_AMPLIFY` - Your GitHub personal access token (Amplify needs this to clone your repo and deploy it)
+
+**Note**: AWS region (us-east-2) and GitHub repo URL are hardcoded in the workflow.
 
 ### Step 3: Push to Main Branch
 
@@ -59,7 +56,8 @@ Check the AWS Amplify Console or run:
 aws cloudformation describe-stacks \
   --stack-name trello-powerup-amplify \
   --query 'Stacks[0].Outputs[?OutputKey==`AmplifyAppUrl`].OutputValue' \
-  --output text
+  --output text \
+  --region us-east-2
 ```
 
 ### Trello Power-Up Setup
@@ -117,12 +115,12 @@ aws cloudformation deploy \
   --template-file cloudformation/amplify.yaml \
   --stack-name trello-powerup-amplify \
   --parameter-overrides \
-    RepositoryUrl=https://github.com/username/repo \
+    RepositoryUrl=https://github.com/mevlana14/trello-urlizer.github.io \
     GitHubToken=your_token \
     BranchName=main \
     AppName=trello-powerup-hello-world \
   --capabilities CAPABILITY_IAM \
-  --region us-east-1
+  --region us-east-2
 ```
 
 ### Delete Stack
@@ -132,7 +130,7 @@ To completely remove all AWS resources:
 ```bash
 aws cloudformation delete-stack \
   --stack-name trello-powerup-amplify \
-  --region us-east-1
+  --region us-east-2
 ```
 
 ## Console Logs

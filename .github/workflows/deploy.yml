@@ -18,7 +18,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: us-east-2
 
       - name: Deploy CloudFormation Stack
         run: |
@@ -27,19 +27,19 @@ jobs:
             --template-file cloudformation/amplify.yaml \
             --stack-name trello-powerup-amplify \
             --parameter-overrides \
-              RepositoryUrl=${{ secrets.GITHUB_REPO_URL }} \
+              RepositoryUrl=https://github.com/mevlana14/trello-urlizer.github.io \
               GitHubToken=${{ secrets.GITHUB_TOKEN_AMPLIFY }} \
               BranchName=main \
               AppName=trello-powerup-hello-world \
             --capabilities CAPABILITY_IAM \
-            --region ${{ secrets.AWS_REGION }}
+            --region us-east-2
 
           # Get the App ID from CloudFormation outputs
           AMPLIFY_APP_ID=$(aws cloudformation describe-stacks \
             --stack-name trello-powerup-amplify \
             --query 'Stacks[0].Outputs[?OutputKey==`AmplifyAppId`].OutputValue' \
             --output text \
-            --region ${{ secrets.AWS_REGION }})
+            --region us-east-2)
 
           # Trigger Amplify build and deployment
           COMMIT_ID=$(git rev-parse HEAD)
@@ -48,7 +48,7 @@ jobs:
             --branch-name main \
             --job-type RELEASE \
             --commit-id $COMMIT_ID \
-            --region ${{ secrets.AWS_REGION }}
+            --region us-east-2
 
       - name: Deployment Status
         run: |
