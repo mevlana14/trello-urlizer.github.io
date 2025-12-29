@@ -30,15 +30,8 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service:
-                - !Sub 'amplify.${AWS::Region}.amazonaws.com'
-                - amplify.amazonaws.com
+              Service: amplify.amazonaws.com
             Action: sts:AssumeRole
-            Condition:
-              StringEquals:
-                aws:SourceAccount: !Ref AWS::AccountId
-              ArnLike:
-                aws:SourceArn: !Sub 'arn:aws:amplify:${AWS::Region}:${AWS::AccountId}:apps/*'
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess-Amplify
       Path: /service-role/
