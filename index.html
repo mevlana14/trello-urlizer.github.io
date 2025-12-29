@@ -3,32 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trello Power-Up - Hello World</title>
+    <title>Trello Power-Up - Feedback Replacer</title>
 </head>
 <body>
     <script src="https://p.trellocdn.com/power-up.min.js"></script>
+    <script src="./js/feedback-replacer.js"></script>
     <script>
-        // Log hello world to console
-        console.log('Hello World');
+        console.log('Feedback Replacer Power-Up loading...');
 
         // Initialize the Trello Power-Up
         window.TrelloPowerUp.initialize({
             'card-badges': function(t, options) {
-                console.log('Hello World from card-badges');
-                return [];
+                // Show badge if card has replaceable feedback patterns
+                return t.card('name', 'desc')
+                    .then(function(card) {
+                        var hasPatterns = false;
+
+                        // Check card name
+                        if (card.name && FeedbackReplacer.hasReplaceablePatterns(card.name)) {
+                            hasPatterns = true;
+                        }
+
+                        // Check card description
+                        if (card.desc && FeedbackReplacer.hasReplaceablePatterns(card.desc)) {
+                            hasPatterns = true;
+                        }
+
+                        if (hasPatterns) {
+                            return [{
+                                text: 'Feedback',
+                                color: 'orange',
+                                icon: 'https://cdn-icons-png.flaticon.com/512/1827/1827933.png'
+                            }];
+                        }
+                        return [];
+                    });
             },
+
             'card-buttons': function(t, options) {
-                console.log('Hello World from card-buttons');
-                return [];
-            },
-            'board-buttons': function(t, options) {
-                console.log('Hello World from board-buttons');
                 return [{
-                    text: 'Hello World',
+                    icon: 'https://cdn-icons-png.flaticon.com/512/1827/1827933.png',
+                    text: 'Replace Feedback',
                     callback: function(t) {
-                        console.log('Hello World button clicked!');
                         return t.popup({
-                            title: 'Hello World',
+                            title: 'Feedback Replacer',
+                            url: './popup.html',
+                            height: 300
+                        });
+                    }
+                }];
+            },
+
+            'card-back-section': function(t, options) {
+                return {
+                    title: 'Feedback Replacer',
+                    icon: 'https://cdn-icons-png.flaticon.com/512/1827/1827933.png',
+                    content: {
+                        type: 'iframe',
+                        url: t.signUrl('./card-back.html'),
+                        height: 150
+                    }
+                };
+            },
+
+            'board-buttons': function(t, options) {
+                return [{
+                    text: 'Feedback Replacer',
+                    icon: 'https://cdn-icons-png.flaticon.com/512/1827/1827933.png',
+                    callback: function(t) {
+                        return t.popup({
+                            title: 'Feedback Replacer Settings',
                             url: './popup.html',
                             height: 200
                         });
@@ -37,10 +81,10 @@
             }
         }, {
             appKey: 'your-app-key-here',
-            appName: 'Hello World Power-Up'
+            appName: 'Feedback Replacer Power-Up'
         });
 
-        console.log('Trello Power-Up initialized - Hello World');
+        console.log('Feedback Replacer Power-Up initialized');
     </script>
 </body>
 </html>

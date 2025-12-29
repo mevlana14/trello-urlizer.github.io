@@ -3,26 +3,312 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World Popup</title>
+    <title>Feedback Replacer</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Helvetica Neue', Arial, sans-serif;
-            padding: 20px;
-            text-align: center;
-        }
-        h1 {
-            color: #0079bf;
-            font-size: 24px;
+            padding: 16px;
             margin: 0;
+            background: #fff;
+        }
+        h2 {
+            color: #172b4d;
+            font-size: 16px;
+            margin: 0 0 12px 0;
+        }
+        .info {
+            background: #f4f5f7;
+            border-radius: 3px;
+            padding: 12px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: #5e6c84;
+        }
+        .pattern-example {
+            background: #fff;
+            border: 1px solid #dfe1e6;
+            border-radius: 3px;
+            padding: 8px;
+            margin: 8px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .arrow {
+            text-align: center;
+            color: #0079bf;
+            font-weight: bold;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 3px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+        .btn-primary {
+            background: #0079bf;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #026aa7;
+        }
+        .btn-primary:disabled {
+            background: #a5bcc8;
+            cursor: not-allowed;
+        }
+        .status {
+            text-align: center;
+            padding: 8px;
+            border-radius: 3px;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+        .status.success {
+            background: #e3fcef;
+            color: #006644;
+        }
+        .status.error {
+            background: #ffebe6;
+            color: #bf2600;
+        }
+        .status.info {
+            background: #deebff;
+            color: #0747a6;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 8px;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #0079bf;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <h1>Hello World!</h1>
+    <h2>Feedback Replacer</h2>
+
+    <div class="info">
+        This will replace all <strong>feedback: NNNN</strong> patterns with <strong>feedback: mevlana: NNNN</strong>
+    </div>
+
+    <div class="pattern-example">feedback: 123123</div>
+    <div class="arrow">↓</div>
+    <div class="pattern-example">feedback: mevlana: 123123</div>
+
+    <button class="btn btn-primary" id="replaceBtn">Replace in Card</button>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <span>Processing...</span>
+    </div>
+
+    <div class="status" id="status" style="display: none;"></div>
+
     <script src="https://p.trellocdn.com/power-up.min.js"></script>
+    <script src="./js/feedback-replacer.js"></script>
     <script>
-        console.log('Hello World from popup!');
-        window.TrelloPowerUp.initialize({});
+        var t = window.TrelloPowerUp.iframe();
+        var replaceBtn = document.getElementById('replaceBtn');
+        var loading = document.getElementById('loading');
+        var status = document.getElementById('status');
+
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = 'status ' + type;
+            status.style.display = 'block';
+        }
+
+        function showLoading(show) {
+            loading.style.display = show ? 'block' : 'none';
+            replaceBtn.disabled = show;
+        }
+
+        replaceBtn.addEventListener('click', function() {
+            showLoading(true);
+            status.style.display = 'none';
+
+            var totalReplacements = 0;
+            var errors = [];
+
+            // Get card data
+            t.card('id', 'name', 'desc')
+                .then(function(card) {
+                    var promises = [];
+
+                    // Replace in card name
+                    if (card.name && FeedbackReplacer.hasReplaceablePatterns(card.name)) {
+                        var nameResult = FeedbackReplacer.replacePatterns(card.name);
+                        if (nameResult.count > 0) {
+                            totalReplacements += nameResult.count;
+                            // Note: Trello Power-Up API doesn't directly support updating card name
+                            // This would need the REST API with proper authentication
+                            console.log('Would replace in name:', nameResult.text);
+                        }
+                    }
+
+                    // Replace in card description
+                    if (card.desc && FeedbackReplacer.hasReplaceablePatterns(card.desc)) {
+                        var descResult = FeedbackReplacer.replacePatterns(card.desc);
+                        if (descResult.count > 0) {
+                            totalReplacements += descResult.count;
+                            console.log('Would replace in description:', descResult.text);
+                        }
+                    }
+
+                    // For now, show a preview of what would be replaced
+                    // Full implementation requires Trello REST API authorization
+                    return t.getRestApi()
+                        .isAuthorized()
+                        .then(function(isAuthorized) {
+                            if (isAuthorized) {
+                                // Perform actual replacement
+                                return performReplacements(card);
+                            } else {
+                                // Request authorization
+                                return t.getRestApi()
+                                    .authorize({ scope: 'read,write' })
+                                    .then(function() {
+                                        return performReplacements(card);
+                                    });
+                            }
+                        });
+                })
+                .then(function(result) {
+                    showLoading(false);
+                    if (result && result.replacements > 0) {
+                        showStatus('Successfully replaced ' + result.replacements + ' pattern(s)!', 'success');
+                        // Refresh the card to show updated content
+                        setTimeout(function() {
+                            t.closePopup();
+                        }, 1500);
+                    } else {
+                        showStatus('No replaceable patterns found in this card.', 'info');
+                    }
+                })
+                .catch(function(err) {
+                    showLoading(false);
+                    console.error('Error:', err);
+                    showStatus('Error: ' + (err.message || 'Could not perform replacement'), 'error');
+                });
+        });
+
+        function performReplacements(card) {
+            var token = t.getRestApi().getToken();
+            var replacements = 0;
+            var promises = [];
+            var apiKey = 'your-app-key-here';
+
+            // Replace in card name
+            if (card.name && FeedbackReplacer.hasReplaceablePatterns(card.name)) {
+                var nameResult = FeedbackReplacer.replacePatterns(card.name);
+                if (nameResult.count > 0) {
+                    replacements += nameResult.count;
+                    promises.push(
+                        fetch('https://api.trello.com/1/cards/' + card.id + '?key=' + apiKey + '&token=' + token, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ name: nameResult.text })
+                        })
+                    );
+                }
+            }
+
+            // Replace in card description
+            if (card.desc && FeedbackReplacer.hasReplaceablePatterns(card.desc)) {
+                var descResult = FeedbackReplacer.replacePatterns(card.desc);
+                if (descResult.count > 0) {
+                    replacements += descResult.count;
+                    promises.push(
+                        fetch('https://api.trello.com/1/cards/' + card.id + '?key=' + apiKey + '&token=' + token, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ desc: descResult.text })
+                        })
+                    );
+                }
+            }
+
+            // Fetch and replace in checklists
+            var checklistPromise = fetch('https://api.trello.com/1/cards/' + card.id + '/checklists?key=' + apiKey + '&token=' + token)
+                .then(function(response) { return response.json(); })
+                .then(function(checklists) {
+                    var checkItemPromises = [];
+                    checklists.forEach(function(checklist) {
+                        checklist.checkItems.forEach(function(item) {
+                            if (FeedbackReplacer.hasReplaceablePatterns(item.name)) {
+                                var itemResult = FeedbackReplacer.replacePatterns(item.name);
+                                if (itemResult.count > 0) {
+                                    replacements += itemResult.count;
+                                    checkItemPromises.push(
+                                        fetch('https://api.trello.com/1/cards/' + card.id + '/checkItem/' + item.id + '?key=' + apiKey + '&token=' + token, {
+                                            method: 'PUT',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ name: itemResult.text })
+                                        })
+                                    );
+                                }
+                            }
+                        });
+                    });
+                    return Promise.all(checkItemPromises);
+                })
+                .catch(function(err) {
+                    console.log('Could not fetch checklists:', err);
+                    return [];
+                });
+
+            // Fetch and replace in comments
+            var commentsPromise = fetch('https://api.trello.com/1/cards/' + card.id + '/actions?filter=commentCard&key=' + apiKey + '&token=' + token)
+                .then(function(response) { return response.json(); })
+                .then(function(actions) {
+                    var commentPromises = [];
+                    actions.forEach(function(action) {
+                        if (action.data && action.data.text && FeedbackReplacer.hasReplaceablePatterns(action.data.text)) {
+                            var commentResult = FeedbackReplacer.replacePatterns(action.data.text);
+                            if (commentResult.count > 0) {
+                                replacements += commentResult.count;
+                                commentPromises.push(
+                                    fetch('https://api.trello.com/1/actions/' + action.id + '?key=' + apiKey + '&token=' + token, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ text: commentResult.text })
+                                    })
+                                );
+                            }
+                        }
+                    });
+                    return Promise.all(commentPromises);
+                })
+                .catch(function(err) {
+                    console.log('Could not fetch comments:', err);
+                    return [];
+                });
+
+            promises.push(checklistPromise, commentsPromise);
+
+            if (promises.length === 0) {
+                return Promise.resolve({ replacements: 0 });
+            }
+
+            return Promise.all(promises)
+                .then(function() {
+                    return { replacements: replacements };
+                });
+        }
     </script>
 </body>
 </html>
